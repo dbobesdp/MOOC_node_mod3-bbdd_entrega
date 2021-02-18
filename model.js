@@ -1,53 +1,54 @@
-
 const { Sequelize, Model, DataTypes } = require('sequelize');
 
-const options = { logging: false};
-const sequelize = new Sequelize("sqlite:db.sqlite", options);
+const options = { logging: false };
+const sequelize = new Sequelize('sqlite:db.sqlite', options);
 
 class User extends Model {}
 class Quiz extends Model {}
+class Score extends Model{}
 
 User.init(
-  { name: {
+  {
+    name: {
       type: DataTypes.STRING,
-      unique: { msg: "Name already exists"},
+      unique: { msg: 'Name already exists' },
       allowNull: false,
       validate: {
-        isAlphanumeric: { args: true, msg: "name: invalid characters"}
-      }
+        isAlphanumeric: { args: true, msg: 'name: invalid characters' },
+      },
     },
     age: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: true,
-        min: { args:   [0], msg: "Age: less than 0"},
-        max: { args: [140], msg: "Age: higher than 140"}
-      }
-    }
+        min: { args: [0], msg: 'Age: less than 0' },
+        max: { args: [140], msg: 'Age: higher than 140' },
+      },
+    },
   },
   { sequelize }
 );
 
 Quiz.init(
-  { question: {
+  {
+    question: {
       type: DataTypes.STRING,
-      unique: { msg: "Quiz already exists"}
+      unique: { msg: 'Quiz already exists' },
     },
-    answer: DataTypes.STRING
-  }, 
+    answer: DataTypes.STRING,
+  },
   { sequelize }
 );
 
-
 Quiz.belongsTo(User, {
-  as: 'author', 
-  foreignKey: 'authorId', 
-  onDelete: 'CASCADE'
+  as: 'author',
+  foreignKey: 'authorId',
+  onDelete: 'CASCADE',
 });
 User.hasMany(Quiz, {
-  as: 'posts', 
-  foreignKey: 'authorId'
+  as: 'posts',
+  foreignKey: 'authorId',
 });
 
 // N:N relations default is -> onDelete: 'cascade'
@@ -55,14 +56,37 @@ User.belongsToMany(Quiz, {
   as: 'fav',
   foreignKey: 'userId',
   otherKey: 'quizId',
-  through: 'Favourites'
+  through: 'Favourites',
 });
 Quiz.belongsToMany(User, {
   as: 'fan',
   foreignKey: 'quizId',
   otherKey: 'userId',
-  through: 'Favourites'
+  through: 'Favourites',
+});
+
+Score.init(
+  {
+    wins: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: true,
+        min: { args: [0], msg: 'Wins: less than 0' },
+      },
+    },
+  },
+  { sequelize }
+);
+
+Score.belongsTo(User, {
+  as: 'player',
+  foreignKey: 'userId',
+  onDelete: 'CASCADE',
+});
+User.hasMany(Score, {
+  as: 'scores',
+  foreignKey: 'userId',
 });
 
 module.exports = sequelize;
-

@@ -24,6 +24,8 @@ exports.help = (rl) =>
     >
     > p              ## play quizzes
     >
+    > ls | sl | s    ## scores: list all
+    >
     > e              ## exit & return to shell`
   )
 
